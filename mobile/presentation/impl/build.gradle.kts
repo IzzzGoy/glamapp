@@ -35,6 +35,8 @@ kotlin {
 
             dependencies {
                 implementation(projects.mobile.presentation.api)
+                implementation(projects.mobile.domain.api)
+                implementation(projects.mobile.utils)
                 api(libs.koin.annotations)
                 api(libs.koin.core)
                 api(libs.koin.compose.viewmodel)
@@ -56,6 +58,9 @@ dependencies {
     add("kspCommonMainMetadata", libs.koin.ksp.compiler)
     add("kspAndroid", libs.koin.ksp.compiler)
     add("kspJvm", libs.koin.ksp.compiler)
+
+    add("kspCommonMainMetadata", libs.arrow.optics.ksp.plugin)
+
 //    add("kspIosX64", libs.koin.ksp.compiler)
 //    add("kspIosArm64", libs.koin.ksp.compiler)
 //    add("kspIosSimulatorArm64", libs.koin.ksp.compiler)

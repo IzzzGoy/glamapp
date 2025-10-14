@@ -54,6 +54,7 @@ kotlin {
 
                 implementation(projects.mobile.screens)
                 implementation(projects.mobile.presentation.impl)
+                implementation(projects.mobile.domain.impl)
                 implementation(projects.mobile.presentation.api)
                 implementation(projects.mobile.uikit)
                 implementation(projects.mobile.utils)
@@ -132,6 +133,10 @@ dependencies {
 // Trigger Common Metadata Generation from Native tasks
 tasks.matching { it.name.startsWith("ksp") && it.name != "kspCommonMainKotlinMetadata" }.configureEach {
     dependsOn("kspCommonMainKotlinMetadata")
+}
+
+ksp {
+    arg("KOIN_CONFIG_CHECK","true")
 }
 
 tasks.preBuild.dependsOn("kspCommonMainKotlinMetadata")

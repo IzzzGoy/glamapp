@@ -12,8 +12,8 @@ actual object Logger : KotzillaLogger {
         KotzillaSDK.log(message)
     }
 
-    override fun trace(tag: String, stackTrace: Boolean, block: () -> Unit) {
-        KotzillaSDK.trace(
+    override fun<T: Any> trace(tag: String, stackTrace: Boolean, block: () -> T): T {
+        return KotzillaSDK.trace(
             tag = tag,
             stacktrace = stackTrace,
             code = block,
