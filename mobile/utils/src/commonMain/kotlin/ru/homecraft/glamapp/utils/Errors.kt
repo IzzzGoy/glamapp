@@ -10,4 +10,8 @@ interface DomainError : AppError {
     data object DummyDomainError: DomainError
 }
 
-interface RepositoryError : AppError
+interface DataError : AppError {
+    interface LocalDataError : DataError {
+        data class DatabaseWrightError(val cause: String): LocalDataError
+    }
+}

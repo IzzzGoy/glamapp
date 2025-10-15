@@ -1,35 +1,47 @@
 package ru.homecraft.glamapp.domain.impl.usecases
 
 import arrow.core.Either
+import arrow.core.raise.catch
 import arrow.core.raise.either
+import arrow.fx.coroutines.parMap
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.toInstant
 import org.koin.core.annotation.Factory
-import ru.homecraft.glamapp.domain.api.model.Order
-import ru.homecraft.glamapp.domain.api.model.OrderList
-import ru.homecraft.glamapp.domain.api.model.OrderStatus
+import ru.homecraft.glamapp.data.api.local.OrdersLocalRepository
+import ru.homecraft.glamapp.data.api.models.OrderEntity
+import ru.homecraft.glamapp.data.api.remote.OrdersRemoteRepository
 import ru.homecraft.glamapp.domain.api.usecases.GetOrdersUseCase
 import ru.homecraft.glamapp.utils.AppError
+import ru.homecraft.glamapp.utils.DataError
 import ru.homecraft.glamapp.utils.Logger
-import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
 //@ViewModelScope
 @Factory(binds = [GetOrdersUseCase::class])
-class GetOrdersUseCaseImpl: GetOrdersUseCase {
+class GetOrdersUseCaseImpl(
+    private val ordersLocalRepository: OrdersLocalRepository,
+    private val ordersRemoteRepository: OrdersRemoteRepository,
+): GetOrdersUseCase {
 
-    override suspend fun invoke(): Either<AppError, OrderList> = either {
-        Logger.trace("GetOrdersUseCaseImpl") {
-            OrderList(
-                orders = (0..15).map {
-                    Order(
-                        id = it,
-                        status = OrderStatus.Pending,
-                        createdAt = Clock.System.now().toLocalDateTime(TimeZone.UTC)
-                    )
+    override suspend fun invoke(): Either<AppError, Int> = either {
+        Logger.suspendTrace("GetOrdersUseCaseImpl") {
+            val remoteData = ordersRemoteRepository.load(0, 15).bind()
+            catch(
+                block = {
+                    ordersLocalRepository.add(remoteData.pageData.parMap {
+                        OrderEntity(
+                            id = it.id.toLong(),
+                            status = it.status.ordinal.toLong(),
+                            createdAt = it.createdAt.toInstant(TimeZone.UTC).toEpochMilliseconds(),
+                            description = it.description
+                        )
+                    })
                 }
-            )
+            ) {
+                DataError.LocalDataError.DatabaseWrightError(it.message.orEmpty())
+            }
+            remoteData.size
         }
     }
 }

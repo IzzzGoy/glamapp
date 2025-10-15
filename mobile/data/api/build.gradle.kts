@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.serialization)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.androidx.room)
 }
 
 kotlin {
@@ -32,19 +33,20 @@ kotlin {
         commonMain {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
             dependencies {
-                implementation(libs.arrow.optics)
-                implementation(libs.arrow.core)
-                implementation(libs.arrow.fx.coroutines)
-
-                implementation(libs.kotlinx.datetime)
-
-                implementation(libs.koin.annotations)
-                implementation(libs.koin.core)
-                implementation(libs.koin.compose.viewmodel)
 
                 implementation(projects.mobile.utils)
-                implementation(projects.mobile.domain.api)
-                implementation(projects.mobile.data.api)
+
+                implementation(libs.androidx.room.runtime)
+                implementation(libs.androidx.sqlite.bundled)
+
+                implementation(libs.koin.core)
+
+                api(libs.arrow.optics)
+                api(libs.arrow.core)
+                api(libs.arrow.fx.coroutines)
+
+                api(libs.kotlinx.serialization.json)
+                api(libs.kotlinx.datetime)
             }
         }
     }
@@ -61,13 +63,15 @@ android {
 
 // KSP Tasks
 dependencies {
-    add("kspCommonMainMetadata", libs.koin.ksp.compiler)
+    /*add("kspCommonMainMetadata", libs.koin.ksp.compiler)
     add("kspAndroid", libs.koin.ksp.compiler)
-    add("kspJvm", libs.koin.ksp.compiler)
+    add("kspJvm", libs.koin.ksp.compiler)*/
 
     add("kspCommonMainMetadata", libs.arrow.optics.ksp.plugin)
-    add("kspAndroid", libs.arrow.optics.ksp.plugin)
-    add("kspJvm", libs.arrow.optics.ksp.plugin)
+    //add("kspCommonMainMetadata", libs.androidx.room.compiler)
+    add("kspAndroid", libs.androidx.room.compiler)
+    //add("kspAndroid", libs.arrow.optics.ksp.plugin)
+    add("kspJvm", libs.androidx.room.compiler)
 //    add("kspIosX64", libs.koin.ksp.compiler)
 //    add("kspIosArm64", libs.koin.ksp.compiler)
 //    add("kspIosSimulatorArm64", libs.koin.ksp.compiler)
@@ -78,4 +82,9 @@ tasks.matching { it.name.startsWith("ksp") && it.name != "kspCommonMainKotlinMet
     dependsOn("kspCommonMainKotlinMetadata")
 }
 
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
 tasks.preBuild.dependsOn("kspCommonMainKotlinMetadata")
+

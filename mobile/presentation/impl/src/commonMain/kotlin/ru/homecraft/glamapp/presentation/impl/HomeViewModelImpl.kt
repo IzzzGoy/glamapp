@@ -1,33 +1,37 @@
 package ru.homecraft.glamapp.presentation.impl
 
 import androidx.lifecycle.viewModelScope
-import arrow.optics.copy
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
+import ru.homecraft.glamapp.domain.api.poviders.OrdersListProvider
 import ru.homecraft.glamapp.domain.api.usecases.GetOrdersUseCase
 import ru.homecraft.glamapp.presentation.api.HomeViewModel
-import ru.homecraft.glamapp.presentation.api.items
+import ru.homecraft.glamapp.utils.Logger
 
 @KoinViewModel(binds = [HomeViewModel::class])
 class HomeViewModelImpl(
     private val getOrdersUseCase: GetOrdersUseCase,
+    private val ordersListProvider: OrdersListProvider,
 ): HomeViewModel() {
 
     init {
         viewModelScope.launch {
             getOrdersUseCase()
                 .onRight { list ->
-                    update(
-                        state.value.copy {
-                            HomeViewModelState.items set list.orders.map { (id, _, _) ->
-                                id
-                            }
-                        }
-                    )
+                    Logger.log("Success load orders $list!")
                 }
                 .onLeft {
-                    // TODO
+                    Logger.log("Success load orders with error: $it!")
                 }
+        }
+        viewModelScope.launch {
+            ordersListProvider.orders.collect {
+                update(
+                    HomeViewModelState(
+                        it.orders.map { (id, status, createdAt) -> id }
+                    )
+                )
+            }
         }
     }
 

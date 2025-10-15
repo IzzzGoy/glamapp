@@ -56,6 +56,8 @@ kotlin {
                 implementation(projects.mobile.presentation.impl)
                 implementation(projects.mobile.domain.impl)
                 implementation(projects.mobile.presentation.api)
+                implementation(projects.mobile.data.api)
+                implementation(projects.mobile.data.impl)
                 implementation(projects.mobile.uikit)
                 implementation(projects.mobile.utils)
             }

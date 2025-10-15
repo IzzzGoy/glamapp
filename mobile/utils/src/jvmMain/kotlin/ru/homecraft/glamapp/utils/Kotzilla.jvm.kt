@@ -19,4 +19,12 @@ actual object Logger : KotzillaLogger {
             code = block,
         )
     }
+
+    override suspend fun<T: Any> suspendTrace(tag: String, stackTrace: Boolean, block: suspend () -> T): T {
+        return KotzillaSDK.suspendTrace(
+            tag = tag,
+            stacktrace = stackTrace,
+            code = block,
+        )
+    }
 }
