@@ -26,13 +26,15 @@ class OrdersListProviderImpl(
                 Order(
                     id = it.id.toInt(),
                     status = when(it.status) {
-                        1L -> {
+                        0L -> {
                             OrderStatus.Success
                         }
-                        2L -> {
+
+                        1L -> {
                             OrderStatus.Rejected(it.description.orEmpty())
                         }
-                        3L -> {
+
+                        2L -> {
                             OrderStatus.Pending
                         }
 

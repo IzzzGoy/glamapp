@@ -22,26 +22,27 @@ import kotlin.time.ExperimentalTime
 class GetOrdersUseCaseImpl(
     private val ordersLocalRepository: OrdersLocalRepository,
     private val ordersRemoteRepository: OrdersRemoteRepository,
-): GetOrdersUseCase {
+) : GetOrdersUseCase {
 
-    override suspend fun invoke(): Either<AppError, Int> = either {
+    override suspend fun invoke(): Either<AppError, Int> =
         Logger.suspendTrace("GetOrdersUseCaseImpl") {
-            val remoteData = ordersRemoteRepository.load(0, 15).bind()
-            catch(
-                block = {
-                    ordersLocalRepository.add(remoteData.pageData.parMap {
-                        OrderEntity(
-                            id = it.id.toLong(),
-                            status = it.status.ordinal.toLong(),
-                            createdAt = it.createdAt.toInstant(TimeZone.UTC).toEpochMilliseconds(),
-                            description = it.description
-                        )
-                    })
+            either {
+                val remoteData = ordersRemoteRepository.load(0, 15).bind()
+                catch(
+                    block = {
+                        ordersLocalRepository.add(remoteData.pageData.parMap {
+                            OrderEntity(
+                                id = it.id.toLong(),
+                                status = it.status.ordinal.toLong(),
+                                createdAt = it.createdAt.toInstant(TimeZone.UTC).toEpochMilliseconds(),
+                                description = it.description
+                            )
+                        })
+                    }
+                ) {
+                    raise(DataError.LocalDataError.DatabaseWrightError(it.message.orEmpty()))
                 }
-            ) {
-                DataError.LocalDataError.DatabaseWrightError(it.message.orEmpty())
+                remoteData.size
             }
-            remoteData.size
         }
-    }
 }
