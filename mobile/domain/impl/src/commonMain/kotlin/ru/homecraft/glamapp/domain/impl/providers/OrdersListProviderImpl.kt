@@ -39,7 +39,7 @@ class OrdersListProviderImpl(
                         }
 
                         else -> {
-                            throw IllegalStateException("Status must be in 1..3")
+                            throw IllegalStateException("Status must be in 1..3 but ${it.status} provided")
                         }
                     },
                     createdAt = Instant

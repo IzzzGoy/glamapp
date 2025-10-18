@@ -20,7 +20,7 @@ class OrdersRemoteRepositoryImpl: OrdersRemoteRepository {
 
     override suspend fun load(page: Int, size: Int): Either<AppError, OrdersPageModel> {
         return either {
-            Logger.trace("OrdersRemoteRepositoryImpl") {
+            Logger.trace("OrdersRemoteRepositoryImpl - remote data loading") {
                 val data = (0..15).map {
                     OrderData(
                         id = it,

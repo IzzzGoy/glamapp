@@ -15,3 +15,5 @@ interface DataError : AppError {
         data class DatabaseWrightError(val cause: String): LocalDataError
     }
 }
+
+data class MappingError(val message: String) : AppError
